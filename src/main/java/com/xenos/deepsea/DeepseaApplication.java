@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 @SpringBootApplication
 public class DeepseaApplication implements CommandLineRunner {
@@ -19,11 +20,20 @@ public class DeepseaApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
 
-        Path source = Paths.get("input/NASA_access_log_Aug95.gz");
-        String data = gzip.decompressToString(source);
+        Path source;
 
+        if (args.length == 0)
+            source = getFilePath("input/NASA_access_log_Aug95.gz");
+        else
+            source = getFilePath(args[0]);
 
+        Map<Long, String> data = gzip.decompressToMap(source);
+
+    }
+
+    private Path getFilePath(String source) {
+        return Paths.get(source);
     }
 }
