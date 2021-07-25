@@ -50,11 +50,9 @@ public class DeepseaApplication implements CommandLineRunner {
         print(statisticService.getUnsuccessfulRequestsPercentage());
 
         // 4
-        statisticService.clearDataWithFrequencies();
         print(statisticService.topTenUnsuccessfulRequests());
 
         // 5
-        statisticService.clearDataWithFrequencies();
         statisticService.addHosts();
         print(statisticService.topTenHosts());
 

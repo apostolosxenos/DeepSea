@@ -104,14 +104,17 @@ public class StatisticService {
         return topTenMap(statistic.getDataWithFrequencies());
     }
 
-    public void clearDataWithFrequencies() {
-        statistic.getDataWithFrequencies().clear();
+    private void initDataWithFrequencies() {
+        if (!statistic.getDataWithFrequencies().isEmpty())
+            statistic.getDataWithFrequencies().clear();
     }
 
     private void setFrequencies(List<String> list) {
 
         if (list == null || list.isEmpty())
             throw new IllegalArgumentException("No data in list");
+
+        this.initDataWithFrequencies();
 
         for (String str : list) {
             Integer frequency = statistic.getDataWithFrequencies().get(str);
