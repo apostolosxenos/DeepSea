@@ -5,46 +5,49 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class StatisticService {
 
     private static final String WHITESPACE = "\\s+";
+    private Map<Integer, String> indexedData;
 
     @Autowired
     private Statistic statistic;
 
-    public void addData(Map<Integer, String> map) {
-        statistic.setIndexedData(map);
+    public StatisticService() {
+        this.indexedData = new HashMap<>();
     }
 
-    public Map<String, Integer> topTenWebPagesAndHostsRequests() {
+    public void addDataToMap(Map<Integer, String> map) {
+        this.indexedData.putAll(map);
+    }
 
-        statistic.getIndexedData()
+    public void addWebpages() {
+        this.indexedData
                 .values()
-                .forEach(line -> statistic.getWebpagesAndHosts().add(line.split(WHITESPACE.toString())[0]));
-
-        this.setFrequencies(statistic.getWebpagesAndHosts());
-
-        return (HashMap<String, Integer>) statistic.getDataWithFrequencies()
-                .entrySet()
-                .stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .limit(10);
+                .forEach(line -> statistic.getWebpages().add(line.split(WHITESPACE)[6]));
     }
 
     public void addResponseStatusCodes() {
 
-        for (Map.Entry<Integer, String> entry : statistic.getIndexedData().entrySet()) {
+        for (Map.Entry<Integer, String> entry : this.indexedData.entrySet()) {
 
             String[] parts = entry.getValue().split(WHITESPACE);
 
             int responseStatusCodeIndex = parts.length - 2;
 
             if (parts.length > 0 && parts[responseStatusCodeIndex] != null && parts[responseStatusCodeIndex].length() == 3) {
-                    statistic.getResponseStatusCodes().add(parts[responseStatusCodeIndex]);
+                statistic.getResponseStatusCodes().add(parts[responseStatusCodeIndex]);
             }
         }
+    }
+
+    public void addHosts() {
+        this.indexedData
+                .values()
+                .forEach(line -> statistic.getHosts().add(line.split(WHITESPACE)[0]));
     }
 
     public void setResponsesStatusPercentage() {
@@ -53,7 +56,7 @@ public class StatisticService {
         int unsuccessful = 0;
 
         for (String responseCode : statistic.getResponseStatusCodes()) {
-            if (responseCode.startsWith("200") || responseCode.startsWith("300"))
+            if (responseCode.startsWith("2") || responseCode.startsWith("3"))
                 ++successful;
             else
                 ++unsuccessful;
@@ -65,7 +68,7 @@ public class StatisticService {
         double unsuccessfulPercentage = calculatePercentage(unsuccessful, total);
 
         statistic.setSuccessfulRequestsPercentage(successfulPercentage);
-        statistic.setSuccessfulRequestsPercentage(unsuccessfulPercentage);
+        statistic.setUnsuccessfulRequestsPercentage(unsuccessfulPercentage);
     }
 
     public double getSuccessfulRequestsPercentage() {
@@ -74,6 +77,35 @@ public class StatisticService {
 
     public double getUnsuccessfulRequestsPercentage() {
         return statistic.getUnsuccessfulRequestsPercentage();
+    }
+
+    public Map<String, Integer> topTenWebpages() {
+        this.setFrequencies(statistic.getWebpages());
+        return topTenMap(statistic.getDataWithFrequencies());
+    }
+
+    public Map<String, Integer> topTenUnsuccessfulRequests() {
+
+        List<String> list = new ArrayList<>();
+
+        list.addAll(
+                statistic.getResponseStatusCodes()
+                        .stream()
+                        .filter(e -> !e.startsWith("2") && !e.startsWith("3"))
+                        .collect(Collectors.toList()));
+
+        this.setFrequencies(list);
+
+        return topTenMap(statistic.getDataWithFrequencies());
+    }
+
+    public Map<String, Integer> topTenHosts() {
+        this.setFrequencies(statistic.getHosts());
+        return topTenMap(statistic.getDataWithFrequencies());
+    }
+
+    public void clearDataWithFrequencies() {
+        statistic.getDataWithFrequencies().clear();
     }
 
     private void setFrequencies(List<String> list) {
@@ -85,6 +117,14 @@ public class StatisticService {
             Integer frequency = statistic.getDataWithFrequencies().get(str);
             statistic.getDataWithFrequencies().put(str, (frequency == null) ? 1 : frequency + 1);
         }
+    }
+
+    private Map<String, Integer> topTenMap(Map<String, Integer> map) {
+        return map.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
+                .limit(10)
+                .collect((Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e2, LinkedHashMap::new)));
     }
 
     private double calculatePercentage(double a, double b) {
