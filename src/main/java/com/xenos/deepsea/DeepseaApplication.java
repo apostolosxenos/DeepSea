@@ -1,5 +1,7 @@
 package com.xenos.deepsea;
 
+import com.xenos.deepsea.service.GZipService;
+import com.xenos.deepsea.service.StatisticService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -15,6 +17,9 @@ public class DeepseaApplication implements CommandLineRunner {
     @Autowired
     GZipService gzip;
 
+    @Autowired
+    StatisticService statisticService;
+
     public static void main(String[] args) {
         SpringApplication.run(DeepseaApplication.class, args);
     }
@@ -29,11 +34,15 @@ public class DeepseaApplication implements CommandLineRunner {
         else
             source = getFilePath(args[0]);
 
-        Map<Long, String> data = gzip.decompressToMap(source);
+        Map<Integer, String> indexedData = gzip.decompressToMap(source);
+        statisticService.addData(indexedData);
+
 
     }
 
     private Path getFilePath(String source) {
         return Paths.get(source);
     }
+
+
 }
