@@ -6,6 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -26,8 +27,9 @@ public class DeepseaApplication implements CommandLineRunner {
 
         if (args.length == 0)
             source = getFilePath("input/NASA_access_log_Aug95.gz");
-        else
+        else {
             source = getFilePath(args[0]);
+        }
 
         commandLineController.initFromFile(source);
         commandLineController.displayChoices();
@@ -36,6 +38,10 @@ public class DeepseaApplication implements CommandLineRunner {
     }
 
     private Path getFilePath(String source) {
+
+        if (!Files.exists(Paths.get(source)))
+            throw new IllegalArgumentException("File does not exist!");
+
         return Paths.get(source);
     }
 
