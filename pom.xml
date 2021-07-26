@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.xenos</groupId>
-    <artifactId>deepsea</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>deepsea-reporting-tool</artifactId>
+    <version>1.0</version>
     <name>deepsea</name>
     <description>Spring Boot project</description>
 

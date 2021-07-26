@@ -23,18 +23,14 @@ public class DeepseaApplication implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        Path source;
+        Path path;
 
-        if (args.length == 0)
-            source = getFilePath("input/NASA_access_log_Aug95.gz");
-        else {
-            source = getFilePath(args[0]);
+        if (args.length == 1) {
+            path = getFilePath(args[0]);
+            commandLineController.initFromFile(path);
+            commandLineController.displayChoices();
+            commandLineController.promptUsersChoice();
         }
-
-        commandLineController.initFromFile(source);
-        commandLineController.displayChoices();
-        commandLineController.promptUsersChoice();
-
     }
 
     private Path getFilePath(String source) {

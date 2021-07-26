@@ -82,8 +82,8 @@ public class StatisticService {
     }
 
     public Map<String, Integer> topTenWebpages() {
-        this.setFrequencies(statistic.getWebpages());
-        return topTenMap(statistic.getDataWithFrequencies());
+        Map<String, Integer> map = this.mapWithFrequencies(statistic.getWebpages());
+        return topTenMap(map);
     }
 
     public Map<String, Integer> topTenUnsuccessfulRequests() {
@@ -96,14 +96,14 @@ public class StatisticService {
                         .filter(e -> !e.startsWith("2") && !e.startsWith("3"))
                         .collect(Collectors.toList()));
 
-        this.setFrequencies(list);
+        Map<String, Integer> map = this.mapWithFrequencies(list);
 
-        return topTenMap(statistic.getDataWithFrequencies());
+        return topTenMap(map);
     }
 
     public Map<String, Integer> topTenHosts() {
-        this.setFrequencies(statistic.getHostNames());
-        return topTenMap(statistic.getDataWithFrequencies());
+        Map<String, Integer> map = this.mapWithFrequencies(statistic.getHostNames());
+        return topTenMap(map);
     }
 
     public void addMalformedLines(Integer splitParts) {
@@ -120,22 +120,19 @@ public class StatisticService {
         return statistic.getMalformedLinesNumbers();
     }
 
-    private void initDataWithFrequencies() {
-        if (!statistic.getDataWithFrequencies().isEmpty())
-            statistic.getDataWithFrequencies().clear();
-    }
-
-    private void setFrequencies(List<String> list) {
+    private Map<String, Integer> mapWithFrequencies(List<String> list) {
 
         if (list == null || list.isEmpty())
             throw new IllegalArgumentException("No data in list");
 
-        this.initDataWithFrequencies();
+        Map<String, Integer> map = new HashMap<>();
 
         for (String str : list) {
-            Integer frequency = statistic.getDataWithFrequencies().get(str);
-            statistic.getDataWithFrequencies().put(str, (frequency == null) ? 1 : frequency + 1);
+            Integer frequency = map.get(str);
+            map.put(str, (frequency == null) ? 1 : frequency + 1);
         }
+
+        return map;
     }
 
     private Map<String, Integer> topTenMap(Map<String, Integer> map) {
