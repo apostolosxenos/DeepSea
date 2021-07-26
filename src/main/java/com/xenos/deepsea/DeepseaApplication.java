@@ -1,7 +1,6 @@
 package com.xenos.deepsea;
 
-import com.xenos.deepsea.service.GZipService;
-import com.xenos.deepsea.service.StatisticService;
+import com.xenos.deepsea.controller.CommandLineController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -9,17 +8,12 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Map;
 
 @SpringBootApplication
 public class DeepseaApplication implements CommandLineRunner {
 
     @Autowired
-    GZipService gzip;
-
-    @Autowired
-    StatisticService statisticService;
+    CommandLineController commandLineController;
 
     public static void main(String[] args) {
         SpringApplication.run(DeepseaApplication.class, args);
@@ -35,44 +29,14 @@ public class DeepseaApplication implements CommandLineRunner {
         else
             source = getFilePath(args[0]);
 
-        Map<Integer, String> indexedData = gzip.decompressToMap(source);
-        statisticService.addDataToMap(indexedData);
-
-
-        // 1
-        statisticService.addWebpages();
-        print(statisticService.topTenWebpages());
-
-        // 2 & 3
-        statisticService.addResponseStatusCodes();
-        statisticService.setResponsesStatusPercentage();
-        print(statisticService.getSuccessfulRequestsPercentage());
-        print(statisticService.getUnsuccessfulRequestsPercentage());
-
-        // 4
-        print(statisticService.topTenUnsuccessfulRequests());
-
-        // 5
-        statisticService.addHosts();
-        print(statisticService.topTenHosts());
-
+        commandLineController.initFromFile(source);
+        commandLineController.displayChoices();
+        commandLineController.promptUsersChoice();
 
     }
 
     private Path getFilePath(String source) {
         return Paths.get(source);
-    }
-
-    private void print(Map<String, Integer> map) {
-        map.entrySet().stream().forEach(e -> System.out.println(e.getKey() + ", " + e.getValue()));
-    }
-
-    private void print(List<String> list) {
-        list.stream().forEach(e -> System.out.println(e));
-    }
-
-    private void print(double percentage) {
-        System.out.println(percentage);
     }
 
 }

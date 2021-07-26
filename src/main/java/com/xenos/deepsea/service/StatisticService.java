@@ -47,7 +47,9 @@ public class StatisticService {
     public void addHosts() {
         this.indexedData
                 .values()
-                .forEach(line -> statistic.getHosts().add(line.split(WHITESPACE)[0]));
+                .forEach(line -> {
+                    statistic.getHostNames().add(line.split(WHITESPACE)[0]);
+                });
     }
 
     public void setResponsesStatusPercentage() {
@@ -100,8 +102,22 @@ public class StatisticService {
     }
 
     public Map<String, Integer> topTenHosts() {
-        this.setFrequencies(statistic.getHosts());
+        this.setFrequencies(statistic.getHostNames());
         return topTenMap(statistic.getDataWithFrequencies());
+    }
+
+    public void addMalformedLines(Integer splitParts) {
+
+        this.indexedData.entrySet().stream()
+                .forEach(line -> {
+                    String[] parts = line.getValue().split(WHITESPACE);
+                    if (parts.length < splitParts)
+                        statistic.getMalformedLinesNumbers().add(line.getKey());
+                });
+    }
+
+    public List<Integer> getMalformedLinesNumbers() {
+        return statistic.getMalformedLinesNumbers();
     }
 
     private void initDataWithFrequencies() {

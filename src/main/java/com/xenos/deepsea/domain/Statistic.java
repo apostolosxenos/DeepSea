@@ -15,7 +15,8 @@ public class Statistic {
     private Map<String, Integer> dataWithFrequencies;
     private List<String> webpages;
     private List<String> responseStatusCodes;
-    private List<String> hosts;
+    private List<String> hostNames;
+    private List<Integer> malformedLinesNumbers;
 
     private double successfulRequestsPercentage;
     private double unsuccessfulRequestsPercentage;
@@ -24,6 +25,7 @@ public class Statistic {
         this.dataWithFrequencies = new HashMap<>();
         this.webpages = new ArrayList<>();
         this.responseStatusCodes = new ArrayList<>();
-        this.hosts = new ArrayList<>();
+        this.hostNames = new ArrayList<>();
+        this.malformedLinesNumbers = new ArrayList<>();
     }
 }
